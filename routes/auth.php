@@ -13,10 +13,11 @@ Route::middleware('guest')->group(function () {
     // y cada uno de ellos maneja una parte del proceso de autenticación (login, register, forgot-password, reset-password).
     Volt::route('login', 'auth.login')
         ->name('login');
-
+    //Cambio la redirección después de iniciar sesión, ahora redirige a la página home. Para ello cambio el contenido de view.livewire.auth.login, 
+    //específicamente el método authenticated() que se ejecuta después de una autenticación exitosa.
     Volt::route('register', 'auth.register')
         ->name('register');
-
+    //Porcedo igual que en login, cambio la redirección después de registrarse, ahora redirige a la página home. Para ello cambio el contenido de view.livewire.auth.register.
     Volt::route('forgot-password', 'auth.forgot-password')
         ->name('password.request');
 
