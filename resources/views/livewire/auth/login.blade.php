@@ -39,7 +39,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
         RateLimiter::clear($this->throttleKey());
         Session::regenerate();
 
-        $this->redirectIntended(default: route('home', absolute: false), navigate: true);
+        $this->redirectIntended(default: route('home'), navigate: true);
     }
 
     /**
@@ -111,6 +111,6 @@ new #[Layout('components.layouts.auth')] class extends Component {
 
     <div class="space-x-1 text-center text-sm text-zinc-600 dark:text-zinc-400">
         Don't have an account?
-        <x-text-link href="{{ route('register') }}">Sign up</x-text-link>
+        <x-text-link :href="route('register')">{{ __('Sign up') }}</x-text-link>
     </div>
 </div>

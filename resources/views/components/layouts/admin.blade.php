@@ -1,6 +1,6 @@
 {{-- Las plantillas por defecto llaman a componentes unos dentros de otros.
 En este caso, para administrar el área de administración se ha construido una plantilla específica que contiene los elementos necesarios todos dentro
-de la propia plantilla. Se ha usado como base layouts.sidebar.blade. Tambien el contenido de la cabecera que está en partials.head --}}
+de la propia plantilla. Se ha usado como base layouts.app.sidebar.blade.php (posteriormente se ha eliminado la carpeta app) el contenido de la cabecera que está en partials.head --}}
 
 @props(['title' => 'Proyecto blog']) {{-- Si no existe title, se usa el valor por defecto --}}
 {{-- @props es una directiva usada dentro de componentes de Blade para declarar las propiedades que ese componente espera recibir desde quien lo invoca.
@@ -18,10 +18,12 @@ sin proporcionar un valor para title, automáticamente se asignará 'Proyecto bl
 
     {{-- <title>{{ $title ?? 'Laravel' }}</title> --}}
     {{-- Ahora se usa el título proporcionado o el por defecto con @props --}}
-    <title>{{ $title}}</title>
+    <title>{{ $title }}</title>
 
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
+    {{-- Script para cargar los estilos de SweetAlert2 --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @fluxAppearance
@@ -37,8 +39,15 @@ sin proporcionar un valor para title, automáticamente se asignará 'Proyecto bl
 
         <flux:navlist variant="outline">
             <flux:navlist.group heading="Platform" class="grid">
-                <flux:navlist.item icon="home" :href="route('admin.dashboard')" :current="request()->routeIs('admin.dashboard')"
-                    wire:navigate>{{__('Dashboard')}}</flux:navlist.item>
+                <flux:navlist.item icon="home" :href="route('admin.dashboard')"
+                    :current="request()->routeIs('admin.dashboard')" wire:navigate>Dashboard
+                </flux:navlist.item>
+                <flux:navlist.item icon="tag" :href="route('admin.categories.index')"
+                    :current="request()->routeIs('admin.categories.*')" wire:navigate>Categorias
+                </flux:navlist.item>
+                <flux:navlist.item icon="book-open" :href="route('admin.posts.index')"
+                    :current="request()->routeIs('admin.posts.*')" wire:navigate>Posts
+                </flux:navlist.item>
             </flux:navlist.group>
         </flux:navlist>
 
@@ -71,7 +80,8 @@ sin proporcionar un valor para title, automáticamente se asignará 'Proyecto bl
                 <flux:menu.separator />
 
                 <flux:menu.radio.group>
-                    <flux:menu.item href="/settings/profile" icon="cog" wire:navigate>Settings</flux:menu.item>
+                    <flux:menu.item :href="route('settings.profile')" icon="cog" wire:navigate>Ajustes
+                    </flux:menu.item>
                 </flux:menu.radio.group>
 
                 <flux:menu.separator />
@@ -117,7 +127,8 @@ sin proporcionar un valor para title, automáticamente se asignará 'Proyecto bl
                 <flux:menu.separator />
 
                 <flux:menu.radio.group>
-                    <flux:menu.item href="/settings/profile" icon="cog" wire:navigate>Settings</flux:menu.item>
+                    <flux:menu.item :href="route('settings.profile')" icon="cog" wire:navigate>Ajustes
+                    </flux:menu.item>
                 </flux:menu.radio.group>
 
                 <flux:menu.separator />
@@ -139,6 +150,34 @@ sin proporcionar un valor para title, automáticamente se asignará 'Proyecto bl
     </flux:main>
 
     @fluxScripts
+
+    {{-- El contenido de session('swal') hay que pasárselo al método Swal.fire, pero lo que le paso es una array php
+    y lo que espera swal.fire es un objeto JavaScript, por lo que lo convertimos a JSON --}}
+
+    @if (session('swal'))
+        <script>
+            Swal.fire(@json(session('swal')))
+        </script>
+    @endif
+
+    {{-- Otra forma seria:
+    
+    @if (session('swal'))
+        <script>
+            Swal.fire({
+                title: '{{ session('swal')['title'] }}',
+                text: '{{ session('swal')['text'] }}',
+                icon: '{{ session('swal')['icon'] }}',
+            });
+        </script>
+    @endif
+     --}}
+
+     {{-- Renderizar scripts adicionales que se hayan definido en otras vistas
+     En la vista hija usa @push('js'). Aquí se renderizan  por ejemplo el script para convertir el título en slug, o
+     el script para confirmar la eliminación de una categoria o post--}}
+     @stack('js')
+
 </body>
 
 </html>

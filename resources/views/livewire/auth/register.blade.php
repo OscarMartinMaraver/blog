@@ -31,7 +31,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
 
         Auth::login($user);
 
-        $this->redirect(route('home', absolute: false), navigate: true);
+        $this->redirect(route('home'), navigate: true);
     }
 }; ?>
 
@@ -89,6 +89,6 @@ new #[Layout('components.layouts.auth')] class extends Component {
 
     <div class="space-x-1 text-center text-sm text-zinc-600 dark:text-zinc-400">
         Already have an account?
-        <x-text-link href="{{ route('login') }}">Log in</x-text-link>
+        <x-text-link :href="route('login')">{{ __('Log in') }}</x-text-link>
     </div>
 </div>

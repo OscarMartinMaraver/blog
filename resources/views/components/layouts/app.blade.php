@@ -1,5 +1,5 @@
 {{-- En lugar de usar elmentos que llamen unos a otros, igual que se ha hecho con la creacion de layouts.admin (usa como base layouts.app.sidebar.blade.php), se prepara una plantilla
-para el usuario normal añadiendo los elementos necesarios (se usa como base layouts.header.blade.php), pero esta vez sin crear una plantilla nueva,
+para el usuario normal añadiendo los elementos necesarios (se usa como base layouts.app.header.blade.php yposteriormente se ha eliminado la carpeta app), pero esta vez sin crear una plantilla nueva,
 sino que se sustituye el contenido qu traia por defecto layouts.app.blade.php --}}
 
 {{-- <x-layouts.app.header :title="$title ?? null">
@@ -85,7 +85,7 @@ sin proporcionar un valor para title, automáticamente se asignará 'Proyecto bl
 
                     <flux:menu.radio.group>
                         <flux:menu.item :href="route('admin.dashboard')" icon="key" wire:navigate>Admin</flux:menu.item>
-                        <flux:menu.item :href="route('settings.profile')" icon="cog" wire:navigate>{{ __('Settings') }}</flux:menu.item>
+                        <flux:menu.item :href="route('settings.profile')" icon="cog" wire:navigate>Ajustes</flux:menu.item>
                     </flux:menu.radio.group>
 
                     <flux:menu.separator />

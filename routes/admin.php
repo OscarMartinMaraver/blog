@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\PostController;
 use Illuminate\Support\Facades\Route; 
 
 // Para que funcione un nuevo archivo de rutas como es el caso de admin.php, no es suficiente con crearlo, sino que hay que registrarla, 
@@ -9,3 +11,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('admin.dashboard');
 })->name('dashboard');
+
+Route::resource('categories', CategoryController::class);
+
+Route::resource('posts', PostController::class);

@@ -1,0 +1,1 @@
+import './assets/string_to_slug';

@@ -57,4 +57,12 @@ class User extends Authenticatable // implements MustVerifyEmail
             ->map(fn (string $name) => Str::of($name)->substr(0, 1))
             ->implode('');
     }
+
+    /** Relación de uno a muchos con Post
+     * Un usuario puede tener muchos posts, pero un post solo pertenece a un usuario
+     */
+    public function posts()
+    {
+        return $this->hasMany(Post::class);
+    }
 }
