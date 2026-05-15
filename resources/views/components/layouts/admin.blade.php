@@ -25,6 +25,8 @@ sin proporcionar un valor para title, automáticamente se asignará 'Proyecto bl
     {{-- Script para cargar los estilos de SweetAlert2 --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+    @stack ('css') {{-- Para cargar estilos adicionales que se hayan definido en otras vistas. En la vista hija se usa @push('css') --}}
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @fluxAppearance
 </head>

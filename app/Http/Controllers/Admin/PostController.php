@@ -87,6 +87,8 @@ class PostController extends Controller
 
         ]);
 
+        //MEdiante un observer, al actualizar un post, si el checkbox de publicar esta marcado y el post no tiene fecha de publicación, 
+        // se asigna la fecha actual a published_at, de lo contrario se asigna null. Esto se hace con un método updating en el app/observers
         $post->update($data);
         
         session()->flash('swal', [
