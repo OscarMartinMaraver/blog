@@ -8,14 +8,14 @@
         </flux:breadcrumbs>
     </div>
 
-    <div class="bg-white px-6 py-4 rounded-lg shadow-lg">
-        <h2 class="text-xl font-bold mb-4">Editar Categoria</h2>
+    <div class="bg-white dark:bg-gray-800 px-6 py-4 rounded-lg shadow-lg">
+        <h2 class="text-xl font-bold mb-4 dark:text-gray-400">Editar Categoria</h2>
         <form action="{{ route('admin.categories.update', $category->id) }}" method="POST">
             @csrf
             @method('PUT')
             <div class="mb-4">
                 <flux:input name="name" label="Nombre" value="{{ old('name', $category->name) }}"
-                    class="w-full md:w-1/2"/>
+                    class="w-full md:w-1/2" />
             </div>
 
             <div class="w-full md:w-1/2 flex justify-end">
