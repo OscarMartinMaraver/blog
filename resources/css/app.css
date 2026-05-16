@@ -1,8 +1,13 @@
 @import 'tailwindcss';
 @import '../../vendor/livewire/flux/dist/flux.css';
 
+/* Los archivos de estilo personalizados debo importarlos */
+/* ⚠️ estiloSelect2.css debe ir primero para que las capas de Tailwind
+   no sobreescriban los estilos del input en modo oscuro */
+@import './estiloSelect2.css';
 @import './components.css';
-/* Como es un archivo creado por nosostros, para que vite pueda compilarlo hay que importarlo  */
+@import './estiloQuill.css';
+
 
 @source "../views";
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';

@@ -1,0 +1,81 @@
+/*Para lograr que Quill.js (con el tema snow) se integre visualmente con los componentes de Flux y Tailwind CSS, necesitas aplicar algunos estilos CSS personalizados.
+El "problema" con Quill es que genera su propio HTML con clases específicas (.ql-toolbar para la barra de herramientas y .ql-container para el cuadro de texto), 
+las cuales ignoran los estilos globales de tu aplicación. He añadido el código CSS en el archivo estiloQuill.css, y lo importo a app.css.
+El siguiente código se de GEMINI*/
+
+/* 1. Unificar bordes y esquinas de la barra de herramientas */
+.ql-toolbar.ql-snow {
+    border: 1px solid #e5e7eb;
+    /* border-gray-200 */
+    border-top-left-radius: 0.5rem;
+    /* rounded-t-lg */
+    border-top-right-radius: 0.5rem;
+    background-color: #f9fafb;
+    /* bg-gray-50 */
+    padding: 8px;
+}
+
+/* 2. Unificar el contenedor del texto (el editor) */
+.ql-container.ql-snow {
+    border: 1px solid #e5e7eb;
+    /* border-gray-200 */
+    border-top: none;
+    /* Evita doble borde entre barra y editor */
+    border-bottom-left-radius: 0.5rem;
+    /* rounded-b-lg */
+    border-bottom-right-radius: 0.5rem;
+    font-family: inherit;
+    /* Utiliza la misma fuente que Flux */
+    font-size: 0.875rem;
+    /* text-sm para igualar a Flux */
+}
+
+/* Altura mínima para que se parezca a un textarea de 18 filas */
+.ql-editor {
+    min-height: 250px;
+}
+
+/* 3. Enfoque (Focus) - Cuando el usuario hace clic dentro del editor */
+.ql-container.ql-snow.ql-focus,
+.ql-toolbar.ql-snow.ql-focus+.ql-container.ql-snow {
+    /* Simula el anillo de enfoque (ring) clásico de Tailwind/Flux */
+    border-color: #3b82f6;
+    /* azul-500 */
+    box-shadow: 0 0 0 1px #3b82f6;
+}
+
+/* ========================================================
+               SOPORTE PARA MODO OSCURO (Dark Mode)
+               ======================================================== */
+.dark .ql-toolbar.ql-snow {
+    border-color: #4b5563;
+    /* border-gray-600 */
+    background-color: #374151;
+    /* bg-gray-700 */
+}
+
+.dark .ql-container.ql-snow {
+    border-color: #4b5563;
+    background-color: #1f2937;
+    /* bg-gray-900 o similar a tus inputs */
+    color: #f3f4f6;
+    /* text-gray-100 */
+}
+
+/* Cambiar el color de los iconos de la barra en modo oscuro */
+.dark .ql-snow .ql-stroke {
+    stroke: #e5e7eb;
+}
+
+.dark .ql-snow .ql-fill {
+    fill: #e5e7eb;
+}
+
+.dark .ql-snow .ql-picker {
+    color: #e5e7eb;
+}
+
+.dark .ql-snow .ql-picker-options {
+    background-color: #374151;
+    border-color: #4b5563;
+}

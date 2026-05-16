@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Post;
+use App\Models\Tag;
 use Illuminate\Http\Request;
 
 class PostController extends Controller
@@ -68,8 +69,9 @@ class PostController extends Controller
     public function edit(Post $post)
     {
         $categories = Category::all();
+        $tags= Tag::all();
 
-        return view('admin.posts.edit', compact('post', 'categories'));
+        return view('admin.posts.edit', compact('post', 'categories', 'tags'));
     }
 
     /**
@@ -83,6 +85,7 @@ class PostController extends Controller
             'category_id' => 'required|exists:categories,id',
             'excerpt' => 'required_if:is_published,1|string',
             'content' => 'required_if:is_published,1|string',
+            'tags' => 'array',
             'is_published' => 'boolean',
 
         ]);
@@ -90,7 +93,17 @@ class PostController extends Controller
         //MEdiante un observer, al actualizar un post, si el checkbox de publicar esta marcado y el post no tiene fecha de publicación, 
         // se asigna la fecha actual a published_at, de lo contrario se asigna null. Esto se hace con un método updating en el app/observers
         $post->update($data);
+
+        $tags = [];
+
+        foreach ($request->tags ?? [] as $tag){ //Si tags no existe(no añado inguna etiqeuta en plantilla edit), se asigna un array vacío para evitar errores
+            $tags[] = Tag::firstOrCreate(['name' => $tag]);//Busca la etiqueta por su nombre, si no existe la crea y devuelve su id, si existe devuelve su id
+        }
+
+        //Accedemos a la relación de etiquetas del post y sincronizamos con el array de ids de etiquetas, eliminando las que no estén en el array y añadiendo las nuevas
+        $post->tags()->sync($tags);
         
+
         session()->flash('swal', [
             'title' => 'Post Actualizado',
             'text' => 'El post ha sido actualizado exitosamente.',
