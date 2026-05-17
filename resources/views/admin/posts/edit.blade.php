@@ -13,38 +13,47 @@
 
     <div class="mb-4">
         <flux:breadcrumbs>
-            <flux:breadcrumbs.item :href="route('admin.dashboard')">Dashboard</flux:breadcrumbs.item>
-            <flux:breadcrumbs.item :href="route('admin.posts.index')">Posts</flux:breadcrumbs.item>
-            <flux:breadcrumbs.item>Editar Post</flux:breadcrumbs.item>
+            <flux:breadcrumbs.item :href="route('admin.dashboard')">{{ __('Dashboard') }}</flux:breadcrumbs.item>
+            <flux:breadcrumbs.item :href="route('admin.posts.index')">{{ __('Posts') }}</flux:breadcrumbs.item>
+            <flux:breadcrumbs.item>{{ __('Edit Post') }}</flux:breadcrumbs.item>
         </flux:breadcrumbs>
     </div>
 
     <div class="bg-white px-6 py-4 dark:bg-gray-800 rounded-lg shadow-lg">
-        <div class="relative mb-6">
-            <img class="w-full md:w-1/2 mx-auto rounded-lg" id="imgPreview"
-                src="https://upload.wikimedia.org/wikipedia/commons/d/d1/Image_not_available.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=thumbnail_unscaled&_=20210219185637"
-                alt="Imagen del post">
-            <div class="absolute top-6 right-6">
-                {{-- <flux:button variant="primary" color="blue" size="sm">
-                    Cambiar Imagen
-                </flux:button> --}}
-                <label
-                    class="bg-blue-500 border border-gray-300 rounded-lg py-2 px-4 cursor-pointer text-sm font-bold text-white hover:bg-blue-600">
-                    {{-- coloco un label en lugar de button porque me permite añadir input type="file" --}}
-                    <input type="file" name="image" class="hidden" accept="image/*"
-                        onchange="preview_image(event, '#imgPreview')">
-                    Seleccionar Imagen
-                </label>
-            </div>
-        </div>
-        <h2 class="text-xl font-bold mb-4 dark:text-gray-400">Editar Post</h2>
-        <form action="{{ route('admin.posts.update', $post->id) }}" method="POST">
+        <form action="{{ route('admin.posts.update', $post->id) }}" method="POST" enctype="multipart/form-data">
+            {{-- enctype="multipart/form-data" es necesario para subir archivos --}}
             @csrf
             @method('PUT')
+            <div class="relative mb-6">
+                <img id="imgPreview" class="w-full md:w-1/2 mx-auto rounded-lg"
+                    src="{{ $post->image_path ? Storage::url($post->image_path) : 'https://upload.wikimedia.org/wikipedia/commons/d/d1/Image_not_available.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=thumbnail_unscaled&_=20210219185637' }}"
+                    alt="Imagen del post"> {{--Imagen por defecto--}}
+                {{-- {{Storage::url($post->image_path)}} Este método devuelve la URL completa de la imagen almacenada --}}
+
+                <div class="absolute top-6 right-6">
+                    {{-- <flux:button variant="primary" color="blue" size="sm">
+                    Cambiar Imagen
+                </flux:button> --}}
+                    <label
+                        class="bg-blue-500 border border-gray-300 rounded-lg py-2 px-4 cursor-pointer text-sm font-bold text-white hover:bg-blue-600">
+                        {{-- coloco un label en lugar de button porque me permite añadir input type="file" --}}
+                        <input type="file" name="image" class="hidden" accept="image/*"
+                            onchange="preview_image(event, '#imgPreview')">
+                        {{ __('Select Image') }}
+                    </label>
+                </div>
+            </div>
+            <h2 class="text-xl font-bold mb-4 dark:text-gray-400">{{ __('Edit Post') }}</h2>
             <div class="mb-4 w-full md:w-1/2 space-y-4">
                 <flux:input name="title" label="Título" oninput="string_to_slug(this.value, '#slug')"
                     value="{{ old('title', $post->title) }}" />
-                <flux:input name="slug" id="slug" label="Slug" value="{{ old('slug', $post->slug) }}" />
+                {{-- No conviene cambiar el slug una vez creado el post, porque si el post ya ha sido indexado por los motores de búsqueda, 
+                cambiar el slug puede afectar negativamente al SEO del sitio. Además, si el post ya ha sido compartido en redes sociales o enlazado desde otros sitios, 
+                cambiar el slug puede romper esos enlaces y generar errores 404. --}}
+                @if (!$post->published_at)
+                    <flux:input name="slug" id="slug" label="Slug" value="{{ old('slug', $post->slug) }}" />
+                @endif
+
                 <flux:select name="category_id" label="Categoría">
                     @foreach ($categories as $category)
                         <flux:select.option value="{{ $category->id }}"
@@ -62,9 +71,9 @@
                     <p class="text-sm font-semibold mb-2">Etiquetas</p>
                     <select id="tags" name="tags[]" multiple="multiple" style="width: 100%">
                         @foreach ($tags as $tag)
-                        {{-- Uso en value el name, porque he permitido en la función Select2 añadir directamente nuevas etiquetas escribiendolas, por lo que en el array a mandar por POST  se 
+                            {{-- Uso en value el name, porque he permitido en la función Select2 añadir directamente nuevas etiquetas escribiendolas, por lo que en el array a mandar por POST  se 
                         mezclarían el Id de las opciones predeterminadas con los names de las nuevas etiquetas --}}
-                        {{-- La directiva @selected selecciona una opción si es true. Pluck() devuelve una colección basada con los valores de la columna especificada (en este caso id) y toArray() lo convierte en un array.
+                            {{-- La directiva @selected selecciona una opción si es true. Pluck() devuelve una colección basada con los valores de la columna especificada (en este caso id) y toArray() lo convierte en un array.
                         Lo que estoy haciendo es comprobar si el id de la etiqueta está en el array de etiquetas seleccionadas. En caso de error de validación old('tags') devuelve lo que habia almacenado y en caso contrario devuelve 
                         $post->tags->pluck('name')->toArray() --}}
                             <option value="{{ $tag->name }}" @selected(in_array($tag->name, old('tags', $post->tags->pluck('name')->toArray())))>
@@ -115,6 +124,10 @@
     </div>
 
     @push('js')
+        {{-- ##############
+                QUILL.JS
+            ############### --}}
+
         <!-- Include the Quill library -->
         <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
         <script>
@@ -125,20 +138,37 @@
                     // Configuramos la barra de herramientas
                     toolbar: [
                         // Grupo 1: Formato de texto principal (Encabezados y Fuentes)
-                        [{'header': [1, 2, 3, false]}],
+                        [{
+                            'header': [1, 2, 3, false]
+                        }],
 
                         // Grupo 2: Estilos de fuente (Negrita, cursiva, subrayado, tachado)
                         ['bold', 'italic', 'underline', 'strike'],
 
                         // Grupo 3: Colores de texto y fondo
                         // Al dejar los arrays vacíos, se mostrarán las opciones de color predeterminadas de Quill, que son bastante completas y visualmente agradables.
-                        [{'color': []}, {'background': []}],
+                        [{
+                            'color': []
+                        }, {
+                            'background': []
+                        }],
 
                         // Grupo 4: Listas y sangrías
-                        [{'list': 'ordered'}, {'list': 'bullet'}],[{'indent': '-1'}, {'indent': '+1'}],
+                        [{
+                            'list': 'ordered'
+                        }, {
+                            'list': 'bullet'
+                        }],
+                        [{
+                            'indent': '-1'
+                        }, {
+                            'indent': '+1'
+                        }],
 
                         // Grupo 5: Alineación de texto
-                        [{'align': []}],
+                        [{
+                            'align': []
+                        }],
 
                         // Grupo 6: Enlaces, imágenes, videos y bloques de código
                         //Está desactivado porque no tengo implementada la subida de imagenes, pero lo dejo por si en un futuro quiero añadir esa función.
@@ -156,6 +186,10 @@
             });
         </script>
 
+        {{-- ##############
+            SELECT2
+        ############### --}}
+
         {{-- Para que funcione Select2 necesito importar jQuery. Elijo el CDN de jQuery Core 4.0.0: minified --}}
         <script src="https://code.jquery.com/jquery-4.0.0.min.js"
             integrity="sha256-OaVG6prZf4v69dPg6PhVattBXkcOWQB62pdZ3ORyrao=" crossorigin="anonymous"></script>
@@ -167,7 +201,8 @@
             $(document).ready(function() {
                 $('#tags').select2({
                     tags: true, // Permite crear nuevas opciones
-                    tokenSeparators: [','], // Permite separar las etiquetas con comas (cuando el usuario escribe una etiqueta y luego una coma, se crea una nueva etiqueta)
+                    tokenSeparators: [
+                    ','], // Permite separar las etiquetas con comas (cuando el usuario escribe una etiqueta y luego una coma, se crea una nueva etiqueta)
                 });
             });
         </script>

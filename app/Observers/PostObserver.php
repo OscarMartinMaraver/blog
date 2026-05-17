@@ -19,6 +19,9 @@ class PostObserver
     if ($post->is_published==1 && !$post->published_at) {
             $post->published_at = now();
         }
+        elseif ($post->is_published==0) {
+            $post->published_at = null;
+        }
 
         // Si el código estuviera directamente en el controlador, método update
         // if ($request->is_published==1 && !$post->published_at) {

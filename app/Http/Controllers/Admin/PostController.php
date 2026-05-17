@@ -7,6 +7,8 @@ use App\Models\Category;
 use App\Models\Post;
 use App\Models\Tag;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class PostController extends Controller
 {
@@ -81,7 +83,20 @@ class PostController extends Controller
     {
         $data = $request->validate([
             'title' => 'required|string|max:255',
-            'slug' => 'required|string|max:255|unique:posts,slug,' . $post->id,
+            //'slug' => 'required|string|max:255|unique:posts,slug,' . $post->id,
+            /*Quiero que slug no se muestre una vez sea publicado el post, pero al actualizar de nuevo el post, da error.
+                Se puede usar Rule, cuya ventaja es que permite usar condiciones para validar el campo slug, en este caso, el campo slug es requerido si el post no tiene fecha de publicación, 
+                es decir, si no está publicado, y además debe ser único en la tabla posts, pero ignorando el id del post que se está actualizando para evitar el error de clave única al actualizar un post sin cambiar el slug.*/
+            'slug' =>[
+                Rule::requiredIf(function () use($post){
+                    return !$post->published_at; //Si el post no tiene fecha de publicación (entonces returntrue), el campo slug es requerido, de lo contrario no es requerido
+                }),
+                'string',
+                'max:255',
+                Rule::unique('posts', 'slug')
+                ->ignore($post->id), //El campo slug debe ser único en la tabla posts, pero ignorando el id del post que se está actualizando para evitar el error de clave única al actualizar un post sin cambiar el slug.
+            ],
+            'image' => 'nullable|image|max:2048',
             'category_id' => 'required|exists:categories,id',
             'excerpt' => 'required_if:is_published,1|string',
             'content' => 'required_if:is_published,1|string',
@@ -90,7 +105,17 @@ class PostController extends Controller
 
         ]);
 
-        //MEdiante un observer, al actualizar un post, si el checkbox de publicar esta marcado y el post no tiene fecha de publicación, 
+        if($request->hasFile('image')){
+              /* Storage::disk('local')->put('post', $request->image);Almacena la imagen en el disco local, en la carpeta post, con un nombre generado automáticamente por Laravel para evitar colisiones de nombres.
+              Si no se indica disk, se almacena en el disco por defecto definido en el archivo .env, FILESYSTEM_DISK */
+              if($post->image_path){
+                Storage::delete($post->image_path); //Elimina la imagen anterior del almacenamiento público
+              }
+              $data['image_path'] = $request->image->store('post', 'public');
+
+        }
+
+        //Mediante un observer, al actualizar un post, si el checkbox de publicar esta marcado y el post no tiene fecha de publicación, 
         // se asigna la fecha actual a published_at, de lo contrario se asigna null. Esto se hace con un método updating en el app/observers
         $post->update($data);
 

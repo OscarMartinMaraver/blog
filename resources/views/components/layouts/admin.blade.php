@@ -40,15 +40,15 @@ sin proporcionar un valor para title, automáticamente se asignará 'Proyecto bl
         </a>
 
         <flux:navlist variant="outline">
-            <flux:navlist.group heading="Platform" class="grid">
+            <flux:navlist.group heading="{{ __('Platform') }}" class="grid">
                 <flux:navlist.item icon="home" :href="route('admin.dashboard')"
-                    :current="request()->routeIs('admin.dashboard')" wire:navigate>Dashboard
+                    :current="request()->routeIs('admin.dashboard')" wire:navigate>{{ __('Dashboard') }}
                 </flux:navlist.item>
                 <flux:navlist.item icon="tag" :href="route('admin.categories.index')"
-                    :current="request()->routeIs('admin.categories.*')" wire:navigate>Categorias
+                    :current="request()->routeIs('admin.categories.*')" wire:navigate>{{ __('Categories') }}
                 </flux:navlist.item>
                 <flux:navlist.item icon="book-open" :href="route('admin.posts.index')"
-                    :current="request()->routeIs('admin.posts.*')" wire:navigate>Posts
+                    :current="request()->routeIs('admin.posts.*')" wire:navigate>{{ __('Posts') }}
                 </flux:navlist.item>
             </flux:navlist.group>
         </flux:navlist>
@@ -82,7 +82,7 @@ sin proporcionar un valor para title, automáticamente se asignará 'Proyecto bl
                 <flux:menu.separator />
 
                 <flux:menu.radio.group>
-                    <flux:menu.item :href="route('settings.profile')" icon="cog" wire:navigate>Ajustes
+                    <flux:menu.item :href="route('settings.profile')" icon="cog" wire:navigate>{{ __('Settings') }}
                     </flux:menu.item>
                 </flux:menu.radio.group>
 
@@ -129,7 +129,7 @@ sin proporcionar un valor para title, automáticamente se asignará 'Proyecto bl
                 <flux:menu.separator />
 
                 <flux:menu.radio.group>
-                    <flux:menu.item :href="route('settings.profile')" icon="cog" wire:navigate>Ajustes
+                    <flux:menu.item :href="route('settings.profile')" icon="cog" wire:navigate>{{ __('Settings') }}
                     </flux:menu.item>
                 </flux:menu.radio.group>
 
@@ -174,6 +174,22 @@ sin proporcionar un valor para title, automáticamente se asignará 'Proyecto bl
         </script>
     @endif
      --}}
+
+     {{--sweetAlert permite incrusar html usando `  --}}
+    @if($errors->any())
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Opps!',
+                html:`<ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                    </ul>`,
+            });
+        </script>
+    @endif
+     
 
      {{-- Renderizar scripts adicionales que se hayan definido en otras vistas
      En la vista hija usa @push('js'). Aquí se renderizan  por ejemplo el script para convertir el título en slug, o
